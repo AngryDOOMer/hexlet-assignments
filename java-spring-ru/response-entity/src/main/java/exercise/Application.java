@@ -1,10 +1,11 @@
 package exercise;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
 import exercise.model.Post;
 
@@ -28,25 +30,33 @@ public class Application {
 
     // BEGIN
     @GetMapping("/posts") // Список страниц
-    public List<Post> index(@RequestParam(defaultValue = "10") Integer limit) {
-        return posts.stream().limit(limit).toList();
+    public ResponseEntity<List<Post>> index(@RequestParam(defaultValue = "10") Integer limit) {
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(posts.size()))
+                        .body(posts.stream().limit(limit).toList());
     }
 
     @PostMapping("/posts") // Создание страницы
-    public Post create(@RequestBody Post page) {
+    public ResponseEntity<Post> create(@RequestBody Post page) {
         posts.add(page);
-        return page;
+        return ResponseEntity.status(HttpStatus.CREATED).body(page);
     }
 
     @GetMapping("/posts/{id}") // Вывод страницы
-    public Optional<Post> show(@PathVariable String id) {
-        return posts.stream()
+    public ResponseEntity<Post> show(@PathVariable String id) {
+        Post answer = posts.stream()
                 .filter(p -> p.getId().equals(id))
-                .findFirst();
+                .findFirst().orElse(null);
+        if(answer == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } else {
+            return ResponseEntity.ok()
+                            .body(answer);
+        }
     }
 
     @PutMapping("/posts/{id}") // Обновление страницы
-    public Post update(@PathVariable String id, @RequestBody Post data) {
+    public ResponseEntity<Post> update(@PathVariable String id, @RequestBody Post data) {
         var maybePage = posts.stream()
                 .filter(p -> p.getId().equals(id))
                 .findFirst();
@@ -55,25 +65,15 @@ public class Application {
             page.setId(data.getId());
             page.setTitle(data.getTitle());
             page.setBody(data.getBody());
+            return ResponseEntity.ok().body(data);
+        }else {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
-        return data;
     }
+    // END
 
-    @DeleteMapping("/posts/{id}") // Удаление страницы
+    @DeleteMapping("/posts/{id}")
     public void destroy(@PathVariable String id) {
         posts.removeIf(p -> p.getId().equals(id));
     }
-
-    @GetMapping("/posts{page}{limit}") // Вывод страницы
-    public List<Optional<Post>> showPaging(@RequestParam("page") Integer id,
-                                                 @RequestParam("limit") Integer limit) {
-        List<Optional<Post>> result = null;
-        for(int i=id; i<limit; i++) {
-            result.add(posts.stream()
-                    .filter(p -> p.getId().equals(id))
-                    .findFirst());
-        }
-        return result;
-    }
-    // END
 }
