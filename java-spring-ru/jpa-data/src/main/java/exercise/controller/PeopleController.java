@@ -29,13 +29,13 @@ public class PeopleController {
     }
 
     // BEGIN
-    @GetMapping("/") // Список страниц
+    @GetMapping() // Список страниц
     @ResponseStatus(HttpStatus.OK)
     public List<Person> index() {
         return personRepository.findAll();
     }
 
-    @PostMapping("/") // Создание страницы
+    @PostMapping() // Создание страницы
     @ResponseStatus(HttpStatus.OK)
     public void create(@RequestBody Person page) {
         personRepository.save(page);
