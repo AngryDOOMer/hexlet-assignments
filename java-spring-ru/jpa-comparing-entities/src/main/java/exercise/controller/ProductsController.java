@@ -32,7 +32,16 @@ public class ProductsController {
     }
 
     // BEGIN
-    
+    @PostMapping(path = "")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Product index(@RequestBody Product product) {
+        List<Product> products = productRepository.findAll();
+        if(products.stream().anyMatch(product1 -> product1.equals(product))){
+            throw new ResourceAlreadyExistsException("Уже есть: " + product.getTitle());
+        }
+        return productRepository.save(product);
+    }
+
     // END
 
     @GetMapping(path = "/{id}")

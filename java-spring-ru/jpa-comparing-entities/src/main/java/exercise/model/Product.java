@@ -1,5 +1,6 @@
 package exercise.model;
 
+// BEGIN
 import jakarta.persistence.Id;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,7 +10,19 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+@Entity
+@Table(name = "product")
+@Getter
+@Setter
+@EqualsAndHashCode(of = {"title","price"})
+public class Product {
 
-// BEGIN
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
+    private Long id;
 
+    private String title;
+
+    private double price;
+}
 // END
