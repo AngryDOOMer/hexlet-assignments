@@ -36,7 +36,7 @@ public class PeopleController {
     }
 
     @PostMapping() // Создание страницы
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     public void create(@RequestBody Person page) {
         personRepository.save(page);
     }
