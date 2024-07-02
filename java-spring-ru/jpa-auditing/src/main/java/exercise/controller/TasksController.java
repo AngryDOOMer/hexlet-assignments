@@ -22,8 +22,11 @@ import exercise.exception.ResourceNotFoundException;
 @RequestMapping("/tasks")
 public class TasksController {
 
-    @Autowired
-    private TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
+
+    public TasksController(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
+    }
 
     @GetMapping(path = "")
     public List<Task> index() {
@@ -40,7 +43,24 @@ public class TasksController {
     }
 
     // BEGIN
-    
+    @PostMapping(path = "")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Task create(@RequestBody Task task) {
+        return taskRepository.save(task);
+    }
+
+    @PutMapping(path = "/{id}")
+    public Task create(@PathVariable long id, @RequestBody Task task) {
+        var oldTask =  taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id + " not found"));
+
+        oldTask.setTitle(task.getTitle());
+        oldTask.setDescription(task.getDescription());
+
+        taskRepository.save(oldTask);
+
+        return oldTask;
+    }
     // END
 
     @DeleteMapping(path = "/{id}")
