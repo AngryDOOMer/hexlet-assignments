@@ -26,13 +26,12 @@ public class ProductsController {
         if (min != 0 && max != 0) {
             products = productRepository.findAllByPriceBetweenOrderByPrice(min, max);
         } else if (min != 0) {
-            products = productRepository.findAllByPriceLessThanOrderByPrice(min);
+            products = productRepository.findAllByPriceGreaterThanOrderByPrice(min);
         } else if (max != 0){
-            products = productRepository.findAllByPriceGreaterThanOrderByPrice(max);
+            products = productRepository.findAllByPriceLessThanOrderByPrice(max);
         } else
             products = productRepository.findAll(Sort.by(Sort.Order.asc("price")));
 
-        products.sort(Comparator.comparingInt(Product::getPrice));
         return products;
     }
     // END
